@@ -8,7 +8,7 @@ Executing `install-trino-cli.sh` will install the trino cli in /usr/local/bin.
 
 To run trino:
 ```
-docker run -d -p 8080:8080 --name trino-trino trinodb/trino
+docker run -d -p 8080:8080 --name elwazi-trino trinodb/trino
 ```
 
 To gain a shell into the trino container:
@@ -47,18 +47,18 @@ connection-password=pgp-dataset-service
 
 Copy the file into your docker container:
 ```
-docker cp trino.properties trino-trino:/etc/trino/catalog
+docker cp trino.properties elwazi-trino:/etc/trino/catalog
 ```
 
 Restart trino:
 ```
-docker restart trino-trino
+docker restart elwazi-trino
 ```
 
 ## Building and Running Data Connect
 
 Acquire the source:
-`git clone git@github.com:DNAstack/data-connect-trino.git`
+`git clone https://github.com/DNAstack/data-connect-trino.git`
 
 Build the image (from within the data-connect-trino repository):
 `./ci/build-docker-image data-connect-trino:latest data-connect-trino latest`
@@ -68,6 +68,26 @@ Create the database for Data Connect:
 psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE dataconnecttrino"
 psql -h localhost -p 5432 -U postgres -d dataconnecttrino -c "CREATE USER \"dataconnecttrino\" WITH PASSWORD 'dataconnecttrino'"
 psql -h localhost -p 5432 -U postgres -d dataconnecttrino -c "GRANT ALL ON DATABASE \"dataconnecttrino\" TO dataconnecttrino"
+```
+
+When running into issues with Liquibase, a quicker path might be to create affected table manually:
+```
+CREATE TABLE query_job (
+    id VARCHAR(36) PRIMARY KEY,
+    query VARCHAR NOT NULL,
+    schema VARCHAR,
+    started_at timestamptz,
+    last_activity_at timestamptz,
+    finished_at timestamptz,
+    next_page_url varchar,
+    original_trace_id varchar
+);
+```
+
+Followed by refresh of permissions:
+
+```
+psql -h localhost -p 5432 -U postgres -d dataconnecttrino -c "GRANT ALL PRIVILEGES on TABLE query_job to dataconnecttrino"
 ```
 
 Running the image:
