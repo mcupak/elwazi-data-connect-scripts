@@ -1,6 +1,4 @@
-# fasp-hackathon-2022
-
-This repository contains resources for Session 2A of the 2022 FASP Hackathon.
+# eLwazi workshop materials
 
 ## Installing the Trino CLI
 
@@ -10,24 +8,23 @@ Executing `install-trino-cli.sh` will install the trino cli in /usr/local/bin.
 
 To run trino:
 ```
-docker run -d -p 8080:8080 --name fasp-trino trinodb/trino
+docker run -d -p 8080:8080 --name trino-trino trinodb/trino
 ```
 
 To gain a shell into the trino container:
 ```
-docker exec -it fasp-trino /bin/bash
+docker exec -it elwazi-trino /bin/bash
 ```
 
 ## Setting up a datasource
 Start a postgres database:
 ```
-docker run -d --name fasp-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
+docker run -d --name elwazi-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
 export PGPASSWORD=postgres
 ```
 
 Import some test data:
 ```
-gsutil cp gs://dnastack-fasp-hackathon-2022/data-connect-test-db.sql .
 psql -h localhost -U postgres -p 5432 -c "CREATE DATABASE \"pgp-dataset-service\""
 psql -h localhost -U postgres -p 5432 -c "CREATE USER \"pgp-dataset-service\" WITH PASSWORD 'pgp-dataset-service'"
 psql -h localhost -U postgres -p 5432 -c "GRANT ALL ON DATABASE \"pgp-dataset-service\" TO \"pgp-dataset-service\""
@@ -39,7 +36,7 @@ psql -h localhost -U postgres -p 5432 -d "pgp-dataset-service" -f data-connect-t
 
 ## Adding a postgres connector to Trino
 
-Create a fasp.properties file:
+Create a trino.properties file:
 
 ```
 connector.name=postgresql
@@ -50,12 +47,12 @@ connection-password=pgp-dataset-service
 
 Copy the file into your docker container:
 ```
-docker cp fasp.properties fasp-trino:/etc/trino/catalog
+docker cp trino.properties trino-trino:/etc/trino/catalog
 ```
 
 Restart trino:
 ```
-docker restart fasp-trino
+docker restart trino-trino
 ```
 
 ## Building and Running Data Connect
@@ -75,5 +72,5 @@ psql -h localhost -p 5432 -U postgres -d dataconnecttrino -c "GRANT ALL ON DATAB
 
 Running the image:
 ```
-docker run --name fasp-data-connect -p 8089:8089 -e TRINO_DATASOURCE_URL=http://host.docker.internal:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/dataconnecttrino -e SPRING_PROFILES_ACTIVE=no-auth data-connect-trino:latest
+docker run --name trino-data-connect -p 8089:8089 -e TRINO_DATASOURCE_URL=http://host.docker.internal:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/dataconnecttrino -e SPRING_PROFILES_ACTIVE=no-auth data-connect-trino:latest
 ```
