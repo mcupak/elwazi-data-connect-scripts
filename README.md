@@ -8,7 +8,7 @@ Executing `install-trino-cli.sh` will install the trino cli in /usr/local/bin.
 
 To run trino:
 ```
-docker run -d -p 8080:8080 --name elwazi-trino trinodb/trino
+docker run -d --network host --name elwazi-trino trinodb/trino
 ```
 
 To gain a shell into the trino container:
@@ -19,7 +19,7 @@ docker exec -it elwazi-trino /bin/bash
 ## Setting up a datasource
 Start a postgres database:
 ```
-docker run -d --name elwazi-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
+docker run -d --name elwazi-postgres --network host -e POSTGRES_PASSWORD=postgres postgres
 export PGPASSWORD=postgres
 ```
 
@@ -40,7 +40,7 @@ Create a trino.properties file:
 
 ```
 connector.name=postgresql
-connection-url=jdbc:postgresql://host.docker.internal/pgp-dataset-service
+connection-url=jdbc:postgresql://localhost/pgp-dataset-service
 connection-user=pgp-dataset-service
 connection-password=pgp-dataset-service
 ```
@@ -92,5 +92,5 @@ psql -h localhost -p 5432 -U postgres -d dataconnecttrino -c "GRANT ALL PRIVILEG
 
 Running the image:
 ```
-docker run --name trino-data-connect -p 8089:8089 -e TRINO_DATASOURCE_URL=http://host.docker.internal:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/dataconnecttrino -e SPRING_PROFILES_ACTIVE=no-auth data-connect-trino:latest
+docker run --name trino-data-connect --network host -e TRINO_DATASOURCE_URL=http://localhost:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/dataconnecttrino -e SPRING_PROFILES_ACTIVE=no-auth data-connect-trino:latest
 ```
