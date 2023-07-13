@@ -58,7 +58,7 @@ docker restart elwazi-trino
 ## Building and Running Data Connect
 
 Acquire the source:
-`git clone https://github.com/DNAstack/data-connect-trino.git`
+`git clone --branch elwazi https://github.com/DNAstack/data-connect-trino.git`
 
 Build the image (from within the data-connect-trino repository):
 `./ci/build-docker-image data-connect-trino:latest data-connect-trino latest`
